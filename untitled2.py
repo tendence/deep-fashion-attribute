@@ -8,11 +8,12 @@ Created on Mon Jan  8 21:35:25 2018
 
 from config import cfg
 import os
+from torch.autograd import Variable
 
 mycount=[]
 for i in range(1000):
     mycount.append(0)
-list_category_img = os.path.join(cfg.DATASET_BASE, r'Anno', r'list_attr_img.txt')
+list_category_img = os.path.join(cfg.DATASET_BASE, r'Anno', r'list_attr_img_sub.txt')
 with open(list_category_img) as fin:
     lines = fin.readlines()[2:]
     lines = list(filter(lambda x: len(x) > 0, lines))
@@ -20,6 +21,7 @@ with open(list_category_img) as fin:
     for line in lines:
         name=line[0]
         attr=list(map(lambda x:int(x),line[1:]))
+        attr=Variable(attr)
         if len(attr)!=1000:
             print('sv')
         print (name)

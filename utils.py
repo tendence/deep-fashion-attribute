@@ -11,7 +11,7 @@ import torch.nn.functional as F
 
 
 def dump_model(model, epoch, batch_idx="final"):
-    dump_folder = os.path.join(cfg.DATASET_BASE, 'models')
+    dump_folder = os.path.join(cfg.DATASET_BASE, cfg.MODELS_FLODER)
     if not os.path.isdir(dump_folder):
         os.mkdir(dump_folder)
     save_path = os.path.join(dump_folder, "model_{}_{}.pth.tar".format(epoch, batch_idx))

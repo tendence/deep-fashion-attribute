@@ -57,6 +57,7 @@ optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=
 def train(epoch):
     model.train()
     criterion_c = nn.CrossEntropyLoss()
+    criterion_a = nn.MultiLabelSoftMarginLoss()
     if cfg.ENABLE_TRIPLET_WITH_COSINE:
         criterion_t = cfg.TripletMarginLossCosine()
     else:
@@ -68,12 +69,17 @@ def train(epoch):
     for batch_idx, (data, target) in enumerate(train_loader):
         if batch_idx % cfg.TEST_INTERVAL == 0:
             test()
-        data, target = data.cuda(cfg.GPU_ID), target.cuda(cfg.GPU_ID)
-        data, target = Variable(data), Variable(target)
+        category=target['category']
+        attribute=target['attribute']
+        data, category,attribute = data.cuda(cfg.GPU_ID), category.cuda(cfg.GPU_ID), attribute.cuda(cfg.GPU_ID)
+        data, category,attribute  = Variable(data), Variable(category),Variable(attribute)
         optimizer.zero_grad()
-        outputs = model(data)[0]
-        classification_loss = criterion_c(outputs, target)
+        output1 = model(data)[0]
+        output2=model(data)[1]
+        classification_loss = criterion_c(output1, category)
+        attribute_loss = criterion_a(output2,attribute)
         if cfg.TRIPLET_WEIGHT:
+            print("use triplet")
             if cfg.ENABLE_INSHOP_DATASET and random.random() < cfg.INSHOP_DATASET_PRECENT:
                 triplet_type = 1
                 try:
@@ -98,9 +104,9 @@ def train(epoch):
                 feats[triplet_batch_size:2 * triplet_batch_size],
                 feats[2 * triplet_batch_size:]
             )
-            loss = classification_loss + triplet_loss * cfg.TRIPLET_WEIGHT
+            loss = classification_loss + triplet_loss * cfg.TRIPLET_WEIGHT+attribute_loss
         else:
-            loss = classification_loss
+            loss = classification_loss+attribute_loss
         loss.backward()
         optimizer.step()
         if batch_idx % cfg.LOG_INTERVAL == 0:
@@ -126,12 +132,14 @@ def test():
     test_loss = 0
     correct = 0
     for batch_idx, (data, target) in enumerate(test_loader):
-        data, target = data.cuda(cfg.GPU_ID), target.cuda(cfg.GPU_ID)
-        data, target = Variable(data, volatile=True), Variable(target)
+        category=target['category']
+        attribute=target['attribute']
+        data, category,attribute = data.cuda(cfg.GPU_ID), category.cuda(cfg.GPU_ID), attribute.cuda(cfg.GPU_ID)
+        data, category,attribute  = Variable(data), Variable(category),Variable(attribute)
         output = model(data)[0]
         test_loss += criterion(output, target).data[0]
         pred = output.data.max(1, keepdim=True)[1]
-        correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+        correct += pred.eq(category.data.view_as(pred)).cpu().sum()
         if batch_idx > cfg.TEST_BATCH_COUNT:
             break
     test_loss /= (cfg.TEST_BATCH_COUNT * cfg.TEST_BATCH_SIZE)

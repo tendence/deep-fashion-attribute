@@ -41,8 +41,10 @@ class Fashion_attr_prediction(data.Dataset):
     def read_partition_category(self):
         list_eval_partition = os.path.join(cfg.DATASET_BASE, r'Eval', r'list_eval_partition.txt')
         list_category_img = os.path.join(cfg.DATASET_BASE, r'Anno', r'list_category_img.txt')
+        list_attr_img = os.path.join(cfg.DATASET_BASE, r'Anno', r'list_attr_img.txt')
         partition_pairs = self.read_lines(list_eval_partition)
         category_img_pairs = self.read_lines(list_category_img)
+        attr_img_pairs = self.read_lines(list_attr_img)
         for k, v in category_img_pairs:
             v = int(v)
             if v <= cfg.CATEGORIES:
@@ -55,6 +57,11 @@ class Fashion_attr_prediction(data.Dataset):
                 else:
                     # Test and Val
                     self.test_list.append(k)
+        for pair in attr_img_pairs:
+            k=pair[0]
+            if k in self.category:
+                v=list(map(lambda x: 0 if x!='1' else 1,pair[1:]))
+                self.attr[k] = v
         self.all_list = self.test_list + self.train_list
         random.shuffle(self.train_list)
         random.shuffle(self.test_list)
@@ -145,7 +152,9 @@ class Fashion_attr_prediction(data.Dataset):
             img_path = self.train_list[index]
         else:
             img_path = self.test_list[index]
-        target = self.attr[img_path]
+        target = {}
+        target['category'] = self.category[img_path]
+        target['attribute']=self.attr[img_path]
         img = self.read_crop(img_path)
 
         if self.transform is not None:
