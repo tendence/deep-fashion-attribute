@@ -6,14 +6,12 @@ import torch.nn as nn
 import torch.optim as optim
 from torchvision import transforms
 from torch.autograd import Variable
-import torchvision
-from config import *
 import numpy as np
 
 
 from scipy import spatial
 
-# dataSetI = [3, 45, 7, 2]
+# dataSetI = [3, 145, 7, 2]
 # dataSetII = [2, 54, 13, 15]
 # result = 1 - spatial.distance.cosine(dataSetI, dataSetII)
 # print(result)

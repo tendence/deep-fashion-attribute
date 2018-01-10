@@ -2,11 +2,11 @@
 
 import torch.utils.data as data
 import torch
-from config import cfg
+from myconfig import cfg
 import os
 from PIL import Image
 import random
-
+import numpy as np
 
 class Fashion_attr_prediction(data.Dataset):
     def __init__(self, type="train", transform=None, target_transform=None, crop=False, img_path=None):
@@ -61,7 +61,7 @@ class Fashion_attr_prediction(data.Dataset):
             k=pair[0]
             if k in self.category:
                 v=list(map(lambda x: 0 if x!='1' else 1,pair[1:]))
-                self.attr[k] = v
+                self.attr[k] = torch.from_numpy(np.asarray(v))
         self.all_list = self.test_list + self.train_list
         random.shuffle(self.train_list)
         random.shuffle(self.test_list)
@@ -105,7 +105,7 @@ class Fashion_attr_prediction(data.Dataset):
             lines = list(filter(lambda x: len(x) > 0, lines))
             pairs = list(map(lambda x: x.strip().split(), lines))
         return pairs
-    
+
     def read_lines_attr(self, path):
         with open(path) as fin:
             lines = fin.readlines()[2:]

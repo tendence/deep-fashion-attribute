@@ -25,7 +25,7 @@ _C.NUM_WORKERS = 4
 _C.LR = 0.001
 _C.MOMENTUM = 0.5
 _C.EPOCH = 10
-_C.DUMPED_MODEL = "model_10_final.pth.tar"
+_C.DUMPED_MODEL = "model_5_2500.pth.tar"
 
 _C.LOG_INTERVAL = 10
 _C.DUMP_INTERVAL = 500
@@ -41,11 +41,11 @@ _C.CATEGORIES = 20
 _C.ATTRIBUTES = 1000
 _C.N_CLUSTERS = 50
 _C.COLOR_TOP_N = 10
-_C.TRIPLET_WEIGHT = 2.0
+_C.TRIPLET_WEIGHT = 0
 _C.ENABLE_TRIPLET_WITH_COSINE = False  # Buggy when backward...
 _C.COLOR_WEIGHT = 0.1
 _C.DISTANCE_METRIC = ('euclidean', 'euclidean')
 #_C.DISTANCE_METRIC = ('cosine', 'cosine')
-_C.MODELS_FLODER= r'models_attr'
+_C.MODELS_FLODER= r'models_all_cate'
 _C.FREEZE_PARAM = True
 

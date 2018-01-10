@@ -9,6 +9,7 @@ from data import Fashion_attr_prediction, Fashion_inshop
 from net import f_model, c_model, p_model
 import numpy as np
 
+print(cfg.DUMPED_MODEL)
 main_model = f_model(model_path=cfg.DUMPED_MODEL).cuda(cfg.GPU_ID)
 color_model = c_model().cuda(cfg.GPU_ID)
 pooling_model = p_model().cuda(cfg.GPU_ID)

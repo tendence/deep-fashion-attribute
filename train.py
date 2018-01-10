@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 
 import torch
 import random
@@ -50,11 +49,13 @@ if cfg.ENABLE_INSHOP_DATASET:
         batch_size=cfg.TRIPLET_BATCH_SIZE, num_workers=cfg.NUM_WORKERS, pin_memory=True
     )
 
-model = f_model(freeze_param=cfg.FREEZE_PARAM, model_path=cfg.DUMPED_MODEL).cuda(cfg.GPU_ID)
+#model = f_model(freeze_param=cfg.FREEZE_PARAM, model_path=cfg.DUMPED_MODEL).cuda(cfg.GPU_ID)
+model = f_model(freeze_param=cfg.FREEZE_PARAM).cuda(cfg.GPU_ID)
 optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=cfg.LR, momentum=cfg.MOMENTUM)
 
 
 def train(epoch):
+    print("begin train")
     model.train()
     criterion_c = nn.CrossEntropyLoss()
     criterion_a = nn.MultiLabelSoftMarginLoss()
@@ -62,17 +63,23 @@ def train(epoch):
         criterion_t = cfg.TripletMarginLossCosine()
     else:
         criterion_t = nn.TripletMarginLoss()
+    print("build loss")
     triplet_loader_iter = iter(triplet_loader)
+    print("triplet_loader")
     triplet_type = 0
     if cfg.ENABLE_INSHOP_DATASET:
         triplet_in_shop_loader_iter = iter(triplet_in_shop_loader)
+        print("in shop")
     for batch_idx, (data, target) in enumerate(train_loader):
+        print("my train")
         if batch_idx % cfg.TEST_INTERVAL == 0:
+            print("test")
             test()
         category=target['category']
         attribute=target['attribute']
         data, category,attribute = data.cuda(cfg.GPU_ID), category.cuda(cfg.GPU_ID), attribute.cuda(cfg.GPU_ID)
         data, category,attribute  = Variable(data), Variable(category),Variable(attribute)
+        print("get data")
         optimizer.zero_grad()
         output1 = model(data)[0]
         output2=model(data)[1]
@@ -139,6 +146,7 @@ def test():
         output = model(data)[0]
         test_loss += criterion(output, target).data[0]
         pred = output.data.max(1, keepdim=True)[1]
+        print("predict class"+str(pred))
         correct += pred.eq(category.data.view_as(pred)).cpu().sum()
         if batch_idx > cfg.TEST_BATCH_COUNT:
             break

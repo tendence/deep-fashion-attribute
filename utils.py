@@ -72,7 +72,7 @@ class FeatureExtractor(nn.Module):
         #     if name == 'fc':
         #         x = x.view(x.size(0), -1)
         #     x = module(x)
-        cls, feat, conv_out = self.deep_module(x)
+        cls,att, feat, conv_out = self.deep_module(x)
         color = self.color_module(x).cpu().data.numpy()  # N * C * 7 * 7
         weight = self.pooling_module(conv_out).cpu().data.numpy()  # N * 1 * 7 * 7
         result = []

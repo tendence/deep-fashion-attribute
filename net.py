@@ -30,16 +30,19 @@ class f_model(nn.Module):
 
         self.avg_pooling = nn.AvgPool2d(7, stride=1)
         self.fc = nn.Linear(num_features, inter_dim)
+        #attribute
         self.fc2 = nn.Linear(inter_dim, num_attribute)
         self.fc3 = nn.Linear(inter_dim,num_category)
-        print("load model")
-        print("model_path               "+model_path)
+        print("end of model building")
+        if model_path:
+            print("load model")
+            print("model_path               "+model_path)
         state = load_model(model_path)
         if state:
             new_state = self.state_dict()
             new_state.update({k: v for k, v in state.items() if k in new_state})
             self.load_state_dict(new_state)
-
+        print("end of f_model")
     def forward(self, x):
         print("forward")
         x = self.backbone(x)
